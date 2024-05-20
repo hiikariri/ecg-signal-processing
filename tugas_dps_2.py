@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os
 
 def plot(x_axis, data, title, xlabel, ylabel, label = 'Series', subplot_position = 221, color='blue', stem=False):
     plt.subplot(subplot_position)
@@ -58,10 +58,14 @@ if __name__ == "__main__":
     # Load the data from the files
     try:
         print("Loading data...")
+        # Get the directory of the current script
+        script_dir = os.path.dirname(__file__)
+        file_davis = os.path.join(script_dir, 'Data ECG Davis.txt')
+        file_levy = os.path.join(script_dir, 'Data ECG Levy.txt')
         sequence_davis, data_davis = np.loadtxt(
-            'Data ECG Davis.txt', skiprows=1, delimiter=None, unpack=True)
+            file_davis, skiprows=1, delimiter=None, unpack=True)
         sequence_levy, data_levy = np.loadtxt(
-            'Data ECG Levy.txt', skiprows=1, delimiter=None, unpack=True)
+            file_levy, skiprows=1, delimiter=None, unpack=True)
     except Exception as e:
         print(f"Error loading data: {e}")
         exit(1)
