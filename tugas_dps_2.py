@@ -114,9 +114,6 @@ if __name__ == "__main__":
     levy_qrs_wave, levy_qrs_wave_freq = dft_by_part(0.3974, 0.4567, data_levy, 5, sampling_freq, 'QRS Levy')
     levy_t_wave, levy_t_wave_freq = dft_by_part(0.4567, 0.5546, data_levy, 5, sampling_freq, 'T Levy')
 
-    plt.figure(figsize=(16, 10))
-    plot(time_davis, data_davis_filtered, 'Davis ECG Signal Filtered', 'Time (s)', 'Voltage', 'ECG', 221)
-    plot(time_levy, data_levy_filtered, 'Levy ECG Signal Filtered', 'Time (s)', 'Voltage', 'ECG', 222)
     # Plot initialization
     plt.figure(figsize=(16, 10))
 
