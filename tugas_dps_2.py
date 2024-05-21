@@ -8,7 +8,8 @@ def low_pass_filter(data, cutoff_freq, filter_order):
     filtered_signal = signal.filtfilt(b, a, data)
     return filtered_signal
 
-def plot(x_axis, data, title, xlabel, ylabel, label = 'Series', subplot_position = 221, color='blue', stem=False):
+
+def plot(x_axis, data, title, xlabel, ylabel, label='Series', subplot_position=221, color='blue', stem=False, half_freq = False):
     plt.subplot(subplot_position)
     if stem:
         plt.stem(x_axis, data, label=label,
@@ -16,6 +17,8 @@ def plot(x_axis, data, title, xlabel, ylabel, label = 'Series', subplot_position
         plt.xlim(0, sampling_freq/2)
     else:
         plt.plot(x_axis, data, label=label, color=color)
+        if half_freq: 
+            plt.xlim(0, sampling_freq/2)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
@@ -77,13 +80,16 @@ if __name__ == "__main__":
         print(f"Error loading data: {e}")
         exit(1)
 
-    sampling_freq = 250  # sampling frequency in Hz
+    sampling_freq = 125  # sampling frequency in Hz
 
     total_data_davis = len(sequence_davis)
     total_data_levy = len(sequence_levy)
 
-    data_davis_filtered = low_pass_filter(data_davis, 40 / (sampling_freq / 2), 6)
-    data_levy_filtered = low_pass_filter(data_levy, 40 / (sampling_freq / 2), 6)
+    data_davis = data_davis - np.mean(data_davis)
+    data_levy = data_levy - np.mean(data_levy)
+    
+    data_davis_filtered = low_pass_filter(data_davis, 40 / (sampling_freq * 0.5), 12)
+    data_levy_filtered = low_pass_filter(data_levy, 40 / (sampling_freq * 0.5), 12)
     
     if use_filter:
         data_davis = data_davis_filtered
@@ -106,13 +112,13 @@ if __name__ == "__main__":
     MagDFT_levy = dft(total_data_levy, data_levy)
 
     # Isolate and replicate parts of the ECG signals
-    davis_p_wave, davis_p_wave_freq = dft_by_part(0.1766, 0.2239, data_davis, 5, sampling_freq, 'P Davis')
-    davis_qrs_wave, davis_qrs_wave_freq = dft_by_part(0.2239, 0.2892, data_davis, 5, sampling_freq, 'QRS Davis')
-    davis_t_wave, davis_t_wave_freq = dft_by_part(0.2892, 0.3806, data_davis, 5, sampling_freq, 'T Davis')
+    davis_p_wave, davis_p_wave_freq = dft_by_part(2.793, 2.885, data_davis, 1, sampling_freq, 'P Davis')
+    davis_qrs_wave, davis_qrs_wave_freq = dft_by_part(2.901, 3.092, data_davis, 1, sampling_freq, 'QRS Davis')
+    davis_t_wave, davis_t_wave_freq = dft_by_part(3.092, 3.190, data_davis, 1, sampling_freq, 'T Davis')
 
-    levy_p_wave, levy_p_wave_freq = dft_by_part(0.3359, 0.3974, data_levy, 5, sampling_freq, 'P Levy')
-    levy_qrs_wave, levy_qrs_wave_freq = dft_by_part(0.3974, 0.4567, data_levy, 5, sampling_freq, 'QRS Levy')
-    levy_t_wave, levy_t_wave_freq = dft_by_part(0.4567, 0.5546, data_levy, 5, sampling_freq, 'T Levy')
+    levy_p_wave, levy_p_wave_freq = dft_by_part(1.276, 1.447, data_levy, 1, sampling_freq, 'P Levy')
+    levy_qrs_wave, levy_qrs_wave_freq = dft_by_part(1.447, 1.569, data_levy, 1, sampling_freq, 'QRS Levy')
+    levy_t_wave, levy_t_wave_freq = dft_by_part(1.569, 1.776, data_levy, 1, sampling_freq, 'T Levy')
 
     # Plot initialization
     plt.figure(figsize=(16, 10))
@@ -126,19 +132,17 @@ if __name__ == "__main__":
     plot(freq_levy, MagDFT_levy, 'DFT of Levy ECG Signal', 'Frequency (Hz)', 'Magnitude', 'DFT', 224, color='orange', stem=True)
 
     plt.figure(figsize=(16, 10))
-
     # Plot DFT P wave
-    plot(davis_p_wave_freq, davis_p_wave, 'DFT of Davis P ECG Signal', 'Frequency (Hz)', 'Magnitude', 'DFT', 221, stem=True)
-    plot(levy_p_wave_freq, levy_p_wave, 'DFT of Levy P ECG Signal', 'Frequency (Hz)', 'Magnitude', 'DFT', 222, color='orange', stem=True)
+    plot(davis_p_wave_freq, davis_p_wave, 'DFT of Davis P ECG Signal', 'Frequency (Hz)', 'Magnitude', 'P', 221, stem=False, half_freq=True)
+    plot(levy_p_wave_freq, levy_p_wave, 'DFT of Levy P ECG Signal', 'Frequency (Hz)', 'Magnitude', 'P', 222, stem=False, half_freq=True)
 
     # Plot DFT QRS wave
-    plot(davis_qrs_wave_freq, davis_qrs_wave, 'DFT of Davis QRS ECG Signal', 'Frequency (Hz)', 'Magnitude', 'DFT', 223, stem=True)
-    plot(levy_qrs_wave_freq, levy_qrs_wave, 'DFT of Levy QRS ECG Signal', 'Frequency (Hz)', 'Magnitude', 'DFT', 224, color='orange', stem=True)
+    plot(davis_qrs_wave_freq, davis_qrs_wave, 'DFT of Davis QRS ECG Signal', 'Frequency (Hz)', 'Magnitude', 'QRS', 221, color='orange', stem=False, half_freq=True)
+    plot(levy_qrs_wave_freq, levy_qrs_wave, 'DFT of Levy QRS ECG Signal', 'Frequency (Hz)', 'Magnitude', 'QRS', 222, color='orange', stem=False, half_freq=True)
 
-    plt.figure(figsize=(16, 10))
     # Plot DFT T wave
-    plot(davis_t_wave_freq, davis_t_wave, 'DFT of Davis T ECG Signal', 'Frequency (Hz)', 'Magnitude', 'DFT', 221, stem=True)
-    plot(levy_t_wave_freq, levy_t_wave, 'DFT of Levy T ECG Signal', 'Frequency (Hz)', 'Magnitude', 'DFT', 222, color='orange', stem=True)
+    plot(davis_t_wave_freq, davis_t_wave, 'DFT of Davis By Part', 'Frequency (Hz)', 'Magnitude', 'T', 221, color='green', stem=False, half_freq=True)
+    plot(levy_t_wave_freq, levy_t_wave, 'DFT of Levy T By Part', 'Frequency (Hz)', 'Magnitude', 'T', 222, color='green', stem=False, half_freq=True)
 
     # Show plot
     plt.tight_layout()
