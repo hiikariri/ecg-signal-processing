@@ -2,10 +2,8 @@ import numpy as np  # Import numpy library
 import matplotlib.pyplot as plt  # Import matplotlib.pyplot library
 
 amplitude = int(input('Enter the amplitude: '))  # Input the amplitude
-sampling_freq = int(input('Enter the sampling frequency: ')
-                    )  # Input the sampling frequency
-sampling_time = int(input('Enter the sampling time: ')
-                    )  # Input the sampling time
+sampling_freq = int(input('Enter the sampling frequency: '))  # Input the sampling frequency
+sampling_time = int(input('Enter the sampling time: '))  # Input the sampling time
 
 total_data = sampling_time * sampling_freq  # Calculate the total data
 time = np.arange(0, sampling_time, 1/sampling_freq)  # Create the time axis
